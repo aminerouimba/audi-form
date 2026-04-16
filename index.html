@@ -424,7 +424,7 @@
         }
 
         if (field.type === "email") {
-          const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailPattern.test(field.value.trim())) {
             field.classList.add("is-invalid");
             valid = false;
