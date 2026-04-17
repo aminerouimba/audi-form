@@ -392,12 +392,17 @@
     </div>
   </div>
 
+
 <script>
+document.addEventListener("DOMContentLoaded", function () {
   let currentStep = 0;
+
   const steps = document.querySelectorAll(".step");
   const progressBar = document.getElementById("progressBar");
   const form = document.getElementById("multiStepForm");
   const summaryBox = document.getElementById("summaryBox");
+  const nextButtons = document.querySelectorAll(".next-btn");
+  const prevButtons = document.querySelectorAll(".prev-btn");
 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhANGXZpXuLnc_4uJktiVeLwZo8YUSMiIb6fACp0r8BdIPPTf-zdYVR6J4sc6xSXUU/exec";
 
@@ -409,7 +414,9 @@
     const progress = ((index + 1) / steps.length) * 100;
     progressBar.style.width = progress + "%";
 
-    if (index === 2) fillSummary();
+    if (index === 2) {
+      fillSummary();
+    }
   }
 
   function validateStep(stepIndex) {
@@ -419,7 +426,9 @@
     currentFields.forEach(field => {
       field.classList.remove("is-invalid");
 
-      if (!field.value.trim()) {
+      const value = field.value ? field.value.trim() : "";
+
+      if (!value) {
         field.classList.add("is-invalid");
         valid = false;
         return;
@@ -427,7 +436,7 @@
 
       if (field.type === "email") {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(field.value.trim())) {
+        if (!emailPattern.test(value)) {
           field.classList.add("is-invalid");
           valid = false;
         }
@@ -474,113 +483,13 @@
     `).join("");
   }
 
-  form.addEventListener("submit", async function(e) {
-    e.preventDefault();
+  nextButtons.forEach(btn => {
+    btn.addEventListener("click", nextStep);
+  });
 
-    const privacyCheck = document.getElementById("privacyCheck");
-    const privacyError = document.getElementById("privacyError");
-
-    if (!privacyCheck.checked) {
-      privacyError.style.display = "block";
-      return;
-    } else {
-      privacyError.style.display = "none";
-    }
-
-    const submitButton = form.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.textContent = "Envoi en cours...";
-
-    const data = Object.fromEntries(new FormData(form).entries());
-
-    try {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
-<script>
-  let currentStep = 0;
-  const steps = document.querySelectorAll(".step");
-  const progressBar = document.getElementById("progressBar");
-  const form = document.getElementById("multiStepForm");
-  const summaryBox = document.getElementById("summaryBox");
-
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwhANGXZpXuLnc_4uJktiVeLwZo8YUSMiIb6fACp0r8BdIPPTf-zdYVR6J4sc6xSXUU/exec";
-
-  function showStep(index) {
-    steps.forEach((step, i) => {
-      step.classList.toggle("active", i === index);
-    });
-
-    const progress = ((index + 1) / steps.length) * 100;
-    progressBar.style.width = progress + "%";
-
-    if (index === 2) fillSummary();
-  }
-
-  function validateStep(stepIndex) {
-    let valid = true;
-    const currentFields = steps[stepIndex].querySelectorAll(".required-field");
-
-    currentFields.forEach(field => {
-      field.classList.remove("is-invalid");
-
-      if (!field.value.trim()) {
-        field.classList.add("is-invalid");
-        valid = false;
-        return;
-      }
-
-      if (field.type === "email") {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(field.value.trim())) {
-          field.classList.add("is-invalid");
-          valid = false;
-        }
-      }
-    });
-
-    return valid;
-  }
-
-  function nextStep() {
-    if (!validateStep(currentStep)) return;
-
-    if (currentStep < steps.length - 1) {
-      currentStep++;
-      showStep(currentStep);
-    }
-  }
-
-  function prevStep() {
-    if (currentStep > 0) {
-      currentStep--;
-      showStep(currentStep);
-    }
-  }
-
-  function fillSummary() {
-    const data = new FormData(form);
-
-    const fields = [
-      ["Nom complet", `${data.get("nom") || ""} ${data.get("prenom") || ""}`.trim()],
-      ["Téléphone", data.get("telephone") || "-"],
-      ["Email", data.get("email") || "-"],
-      ["Ville", data.get("ville") || "-"],
-      ["Modèle", data.get("modele") || "-"],
-      ["Type de demande", data.get("demande") || "-"],
-      ["Message", data.get("message") || "-"]
-    ];
-
-    summaryBox.innerHTML = fields.map(item => `
-      <div class="summary-item">
-        <span>${item[0]}</span>
-        <strong class="text-end">${item[1]}</strong>
-      </div>
-    `).join("");
-  }
+  prevButtons.forEach(btn => {
+    btn.addEventListener("click", prevStep);
+  });
 
   form.addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -632,6 +541,7 @@
   });
 
   showStep(currentStep);
+});
 </script>
 </body>
 </html>
